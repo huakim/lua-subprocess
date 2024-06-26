@@ -1,6 +1,8 @@
 #!/bin/bash
-rm *.o *.so *.tar.gz *.obsinfo *.spec *.rockspec
+rm *.o *.so *.tar.gz *.spec *.rockspec
 python3 generate_spec.py
+rm *.obsinfo
 git add --all
 git commit -m update
 git push
+
