@@ -1,4 +1,4 @@
-# 🟩 lua54-subprocess
+# 🟩 lua5.4-subprocess
 
 **Thanks to [@huakim](https://github.com/huakim/lua-subprocess) for commit ahead to port lua-subprocess to openSUSE**
 
@@ -9,7 +9,7 @@ Get package on system
  ```css
 zypper addrepo -k https://download.opensuse.org/repositories/home:huakim:matrix/openSUSE_Tumbleweed/home:huakim:matrix.repo
 zypper refresh
-zypper install lua-cjson
+zypper install lua-subprocess
   ```
 
   Enjoy !
