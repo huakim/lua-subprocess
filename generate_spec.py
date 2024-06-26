@@ -25,13 +25,28 @@ dependencies = {
   "lua >= 5.1"
 }
 build = {
-  type = "builtin",
-  modules = {
-    ["subprocess"] = {
-      sources = {"subprocess.c", "liolib-copy.c"},
-      defines = {"OS_POSIX"}
-    }
-  }
+
+   platforms = {
+      unix = {
+         type = "builtin",
+         modules = {
+            subprocess = {
+               sources = { "subprocess.c", "liolib-copy.c" },
+               defines = { "OS_POSIX" }
+            }
+         }
+      },
+      windows = {
+         type = "builtin",
+         modules = {
+            subprocess = {
+               sources = { "subprocess.c", "liolib-copy.c" },
+               defines = { "OS_WINDOWS", "LUA_BUILD_AS_DLL", "_CRT_SECURE_NO_WARNINGS" }
+            }
+         }
+      }
+   }
+
 }
 '''
 

@@ -42,7 +42,9 @@
 #if defined(OS_POSIX)
 #include "unistd.h"
 #include "sys/wait.h"
+#include "sys/types.h"
 #include "sys/stat.h"
+#include "signal.h"
 #include "stdio.h"
 typedef int filedes_t;
 
@@ -58,6 +60,21 @@ static int direxists(const char *fname)
 
 #elif defined(OS_WINDOWS)
 #include "windows.h"
+#include "io.h"
+
+/* Converts a multibyte UTF-8 character string into a wide character string. Required for internationalization. */
+static LPWSTR utf8towchar(const char *strC)
+{
+    if (strC == NULL)
+        return NULL;
+    int length = strlen(strC) + 1;
+    int size = MultiByteToWideChar(CP_UTF8, 0, strC, length, NULL, 0);
+    assert(size != 0);
+    LPWSTR strW = malloc(size * sizeof(WCHAR));
+    length = MultiByteToWideChar(CP_UTF8, 0, strC, length, strW, size);
+    assert(size == length);
+    return strW;
+}
 
 /* Some SDKs don't define this */
 #ifndef INVALID_FILE_ATTRIBUTES
@@ -69,8 +86,9 @@ typedef HANDLE filedes_t;
 /* return 1 if the named directory exists and is a directory */
 static int direxists(const char *fname)
 {
-    DWORD result;
-    result = GetFileAttributes(fname);
+    LPWSTR fnameW = utf8towchar(fname);
+    DWORD result = GetFileAttributesW(fnameW);
+    free(fnameW);
     if (result == INVALID_FILE_ATTRIBUTES) return 0;
     return !!(result & FILE_ATTRIBUTE_DIRECTORY);
 }
@@ -283,7 +301,7 @@ static void copy_w32error(char errmsg_out[], size_t errmsg_len, DWORD error)
 static void push_w32error(lua_State *L, DWORD error)
 {
     LPTSTR buf;
-    if (FormatMessage(
+    if (FormatMessageA(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
         NULL, error, 0, (void *) &buf, 1, NULL) == 0)
     {
@@ -546,7 +564,7 @@ child_failure:
     int i, fd;
     struct fdinfo *fdi;
     SECURITY_ATTRIBUTES secattr;
-    STARTUPINFO si;
+    STARTUPINFOW si;
     PROCESS_INFORMATION pi;
     char *cmdline;
 
@@ -587,7 +605,7 @@ dup_hfile:
                 break;
             case FDMODE_FILENAME:
                 if (i == STDIN_FILENO){
-                    hfiles[i] = CreateFile(
+                    hfiles[i] = CreateFileA(
                         fdi->info.filename,
                         GENERIC_READ,
                         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -596,7 +614,7 @@ dup_hfile:
                         FILE_ATTRIBUTE_NORMAL,
                         NULL);
                 } else {
-                    hfiles[i] = CreateFile(
+                    hfiles[i] = CreateFileA(
                         fdi->info.filename,
                         GENERIC_WRITE,
                         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -694,26 +712,36 @@ failure:
     si.hStdOutput = hfiles[1];
     si.hStdError = hfiles[2];
 
-    if (CreateProcess(
-        executable, /* lpApplicationName */
-        cmdline,    /* lpCommandLine */
-        NULL,       /* lpProcessAttributes */
-        NULL,       /* lpThreadAttributes */
-        TRUE,       /* bInheritHandles */
-        0,          /* dwCreationFlags */
-        NULL,       /* lpEnvironment */
-        cwd,        /* lpCurrentDirectory */
-        &si,        /* lpStartupInfo */
-        &pi)        /* lpProcessInformation */
+    LPWSTR executableW = utf8towchar(executable);
+    LPWSTR cmdlineW = utf8towchar(cmdline);
+    LPWSTR cwdW = utf8towchar(cwd);
+
+    if (CreateProcessW(
+        executableW, /* lpApplicationName */
+        cmdlineW,    /* lpCommandLine */
+        NULL,        /* lpProcessAttributes */
+        NULL,        /* lpThreadAttributes */
+        TRUE,        /* bInheritHandles */
+        0,           /* dwCreationFlags */
+        NULL,        /* lpEnvironment */
+        cwdW,        /* lpCurrentDirectory */
+        &si,         /* lpStartupInfoW */
+        &pi)         /* lpProcessInformation */
     == 0){
         copy_w32error(errmsg_out, errmsg_len, GetLastError());
         free(cmdline);
+        free(executableW);
+        free(cmdlineW);
+        free(cwdW);
         closefds(hfiles, 3);
         closefiles(pipe_ends_out, 3);
         return -1;
     }
     CloseHandle(pi.hThread); /* Don't want this handle */
     free(cmdline);
+    free(executableW);
+    free(cmdlineW);
+    free(cwdW);
     closefds(hfiles, 3); /* XXX: is this correct? */
     proc->done = 0;
     proc->pid = pi.dwProcessId;
