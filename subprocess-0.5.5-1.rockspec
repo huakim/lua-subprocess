@@ -11,18 +11,38 @@ description = {
   summary = "Subprocess module for Lua",
  }
 build = {
-  modules = {
-   subprocess = {
-    defines = {
-     "OS_POSIX",
+  platforms = {
+   unix = {
+    modules = {
+     subprocess = {
+      defines = {
+       "OS_POSIX",
+      },
+      sources = {
+       "subprocess.c",
+       "liolib-copy.c",
+      },
+     },
     },
-    sources = {
-     "subprocess.c",
-     "liolib-copy.c",
+    type = "builtin",
+   },
+   windows = {
+    modules = {
+     subprocess = {
+      defines = {
+       "OS_WINDOWS",
+       "LUA_BUILD_AS_DLL",
+       "_CRT_SECURE_NO_WARNINGS",
+      },
+      sources = {
+       "subprocess.c",
+       "liolib-copy.c",
+      },
+     },
     },
+    type = "builtin",
    },
   },
-  type = "builtin",
  }
 dependencies = {
   "lua >= 5.1",
