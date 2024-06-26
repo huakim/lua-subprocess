@@ -1,4 +1,18 @@
-# 🟩 lua5.4-subprocess
+# 🟩 lua54-subprocess
+
+**Thanks to [@huakim](https://github.com/huakim/lua-subprocess) for commit ahead to port lua-subprocess to openSUSE**
+
+Tested on openSUSE Tumbleweed
+
+Get package on system
+
+ ```css
+zypper addrepo -k https://download.opensuse.org/repositories/home:huakim:matrix/openSUSE_Tumbleweed/home:huakim:matrix.repo
+zypper refresh
+zypper install lua-cjson
+  ```
+
+  Enjoy !
 
 **Thanks to [@xlq](https://github.com/xlq/lua-subprocess) for commit ahead to port lua-subprocess in Lua 5.3**
 
@@ -77,4 +91,7 @@ Get package on system
 **Ted Trask** - https://github.com/tdtrask/lua-subprocess - For alpine apk pkg
 <br>
 **Trinity Labs** - https://github.com/trinity-labs/lua5.4-subprocess - For README.md and for fix all code to port Lua 5.4
+<br>
+huakim - https://github.com/huakim/lua-subprocess - For fixing bug 'no luaL_optlong found' and porting to openSUSE
+https://build.opensuse.org/package/show/home:huakim:matrix/lua-subprocess
 <br>
