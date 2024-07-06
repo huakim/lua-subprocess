@@ -43,4 +43,4 @@ build = {
 }
 '''
 rockspec = 'text://'+rockspec
-for template in ('rock.rockspec', 'generic.spec', 'obs.obsinfo'): main(['--rockspec',rockspec,'--template',template])
+for template in ('rock.rockspec', 'generic.spec', 'obs.obsinfo'): main(['generate', '--rockspec',rockspec,'--template',template])
