@@ -1,12 +1,5 @@
 #!/usr/bin/python3
-from lua2pack import generator
-import os
-
-args = type('AttrDict', (dict,), {'__slots__':(),'__getattr__':dict.get,'__setattr__':dict.__setitem__})()
-
-def main(template):
-    args.template = template
-    generator(args)
+from lua2pack import main
 
 rockspec = r'''
 package = "subprocess"
@@ -49,9 +42,5 @@ build = {
 
 }
 '''
-
-args.rockspec = ['text://'+rockspec]
-
-main('rock.rockspec')
-main('generic.spec')
-main('obs.obsinfo')
+rockspec = 'text://'+rockspec
+for template in ('rock.rockspec', 'generic.spec', 'obs.obsinfo'): main(['--rockspec',rockspec,'--template',template])
