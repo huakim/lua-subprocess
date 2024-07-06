@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from lua2pack import main
-
+import os
 rockspec = r'''
 package = "subprocess"
 version = "'''+os.environ.get('LUA_SUBPROCESS_VERSION','0.5.5-1')+'''"
