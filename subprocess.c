@@ -758,12 +758,12 @@ static char* concatenateStrings(const char* str1, const char* str2) {
     return result;
 }
 
-static const char ** getEnvs(lua_State * L){
+static const *char * getEnvs(lua_State * L){
     int size = 0;
     int asize = 10;
-    const char ** envs = NULL;
+    const *char * envs = NULL;
     if (lua_istable (L, -1)){
-        envs = (const char **)malloc(asize * sizeof(const char *));
+        envs = (const *char *)malloc(asize * sizeof(const char *));
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
             lua_pushvalue(L, -2);
@@ -780,7 +780,7 @@ static const char ** getEnvs(lua_State * L){
 
             if (asize <= size){
                 asize = asize * 3;
-                envs = (const char **)realloc(envs, asize * sizeof(const char *));
+                envs = (const *char *)realloc(envs, asize * sizeof(const char *));
             }
             envs[size] = value;
             size ++;
@@ -789,7 +789,7 @@ static const char ** getEnvs(lua_State * L){
             lua_pop(L, 2);
         }
         envs[size] = 0;
-        envs = (const char **) realloc(envs, (size+1) * sizeof(const char *));
+        envs = (const* char *) realloc(envs, (size+1) * sizeof(const char *));
     }
     return envs;
 }

@@ -32,7 +32,7 @@ Requires: %{luadist lua >= 5.1}
 %if %{with check}
 %luarocks_generate_buildrequires -c -b
 %else
-%luarocks_generate_buildrequires -b 
+%luarocks_generate_buildrequires -b
 %endif
 
 %build
