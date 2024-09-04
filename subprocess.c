@@ -400,7 +400,7 @@ static char *compile_cmdline(const char *const *args)
 
 /* Function for opening subprocesses. Returns 0 on success and -1 on failure.
    On failure, errmsg_out shall contain a '\0'-terminated error message. */
-static int dopopen(char *const *args,  /* program arguments with NULL sentinel */
+static int dopopen(const  char **args,  /* program arguments with NULL sentinel */
                    const char *executable,   /* actual executable */
                    struct fdinfo fdinfo[3],  /* info for stdin/stdout/stderr */
                    int close_fds,            /* 1 to close all fds */
@@ -410,7 +410,7 @@ static int dopopen(char *const *args,  /* program arguments with NULL sentinel *
                    FILE *pipe_ends_out[3],   /* pipe ends are put here */
                    char errmsg_out[],        /* written to on failure */
                    size_t errmsg_len,         /* length of errmsg_out (EXCLUDING sentinel) */
-                   char *const *envs  /* program environment variables */
+                   const char **envs  /* program environment variables */
                   )
 #if defined(OS_POSIX)
 {
@@ -526,9 +526,9 @@ pipe_failure:
 
         /* exec! Farewell, subprocess.c! */
         if (envs == NULL){
-            execvp(executable, args); /* XXX: const cast */
+            execvp(executable, (char * const*)(void*)args); /* XXX: const cast */
         } else {
-            execvpe(executable, args, envs);
+            execvpe(executable, (char * const*)(void*)args, (char * const*)(void*)envs);
         }
         /* Oh dear, we're still here. */
 child_failure:
@@ -758,12 +758,12 @@ static char* concatenateStrings(const char* str1, const char* str2) {
     return result;
 }
 
-static const *char * getEnvs(lua_State * L){
+static const char ** getEnvs(lua_State * L){
     int size = 0;
     int asize = 10;
-    const *char * envs = NULL;
+    const char ** envs = NULL;
     if (lua_istable (L, -1)){
-        envs = (const *char *)malloc(asize * sizeof(const char *));
+        envs = (const char **)malloc(asize * sizeof(const char *));
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
             lua_pushvalue(L, -2);
@@ -780,7 +780,7 @@ static const *char * getEnvs(lua_State * L){
 
             if (asize <= size){
                 asize = asize * 3;
-                envs = (const *char *)realloc(envs, asize * sizeof(const char *));
+                envs = (const char **)realloc(envs, asize * sizeof(const char *));
             }
             envs[size] = value;
             size ++;
@@ -789,7 +789,7 @@ static const *char * getEnvs(lua_State * L){
             lua_pop(L, 2);
         }
         envs[size] = 0;
-        envs = (const* char *) realloc(envs, (size+1) * sizeof(const char *));
+        envs = (const char **) realloc(envs, (size+1) * sizeof(const char *));
     }
     return envs;
 }

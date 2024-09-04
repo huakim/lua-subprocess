@@ -17,6 +17,7 @@ build = {
      subprocess = {
       defines = {
        "OS_POSIX",
+       "_GNU_SOURCE"
       },
       sources = {
        "subprocess.c",
