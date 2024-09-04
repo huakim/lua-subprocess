@@ -25,7 +25,7 @@ build = {
          modules = {
             subprocess = {
                sources = { "subprocess.c", "liolib-copy.c" },
-               defines = { "OS_POSIX" }
+               defines = { "OS_POSIX", "_GNU_SOURCE" }
             }
          }
       },
@@ -34,7 +34,7 @@ build = {
          modules = {
             subprocess = {
                sources = { "subprocess.c", "liolib-copy.c" },
-               defines = { "OS_WINDOWS", "LUA_BUILD_AS_DLL", "_CRT_SECURE_NO_WARNINGS" }
+               defines = { "OS_WINDOWS", "LUA_BUILD_AS_DLL", "_CRT_SECURE_NO_WARNINGS", "_GNU_SOURCE" }
             }
          }
       }
